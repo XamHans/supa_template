@@ -1,0 +1,26 @@
+'use client';
+import { SparklesCore } from '~/components/ui/sparkles';
+
+export function Hero() {
+  return (
+    <div className='relative flex h-[40rem] w-full flex-col items-center justify-center overflow-hidden rounded-md bg-black'>
+      <div className='absolute inset-0 h-screen w-full'>
+        <SparklesCore
+          id='tsparticlesfullpage'
+          background='transparent'
+          minSize={0.6}
+          maxSize={1.4}
+          particleDensity={100}
+          className='h-full w-full'
+          particleColor='#FFFFFF'
+        />
+      </div>
+      <h1 className='relative z-20 text-center text-3xl font-bold text-white md:text-7xl lg:text-6xl'>
+        SUPA_TEMPLATE
+      </h1>
+      <h4 className='text-white md:mt-2 md:text-lg'>
+        The only SaaS Boilerplate you need for Supabase
+      </h4>
+    </div>
+  );
+}
