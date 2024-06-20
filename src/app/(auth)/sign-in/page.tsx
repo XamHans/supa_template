@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: 'Authentication made easy with SUPA_TEMPLATE.',
 };
 
-export default function SignUpPage() {
+export default function SignInPage() {
   return (
     <>
       <div className='md:hidden'>
@@ -31,7 +31,7 @@ export default function SignUpPage() {
       </div>
       <div className='container relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0'>
         <Link
-          href='/auth/sign-up'
+          href='/sign-up'
           className={cn(
             buttonVariants({ variant: 'ghost' }),
             'absolute right-4 top-4 md:right-8 md:top-8'

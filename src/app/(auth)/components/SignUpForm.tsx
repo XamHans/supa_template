@@ -1,8 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaGithub, FaSpinner } from 'react-icons/fa';
@@ -11,6 +9,7 @@ import { Button } from '~/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,53 +18,54 @@ import {
 import { Input } from '~/components/ui/input';
 import { toast } from '~/components/ui/use-toast';
 import { cn } from '~/libs/utils';
+import { signUpAction } from '../actions/auth';
 
-const signInSchema = z.object({
-  email: z
-    .string()
-    .email('Invalid email address')
-    .min(5, 'Email must be at least 5 characters long')
-    .max(255, 'Email must be at most 255 characters long'),
-  password: z.string().min(8, 'Password must be at least 8 characters long'),
-});
+export const signUpSchema = z
+  .object({
+    email: z
+      .string()
+      .email('Invalid email address')
+      .min(5, 'Email must be at least 5 characters long')
+      .max(255, 'Email must be at most 255 characters long'),
+    password: z.string().min(8, 'Password must be at least 8 characters long'),
+    repeatPassword: z
+      .string()
+      .min(8, 'Password must be at least 8 characters long'),
+  })
+  .refine((data) => data.password === data.repeatPassword, {
+    message: "Passwords don't match",
+    path: ['repeatPassword'], // path of error
+  });
 
-type signInInput = z.infer<typeof signInSchema>;
+type signUpInput = z.infer<typeof signUpSchema>;
 
-export function SignInForm() {
-  const supabase = createClientComponentClient();
+export function SignUpForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const router = useRouter();
 
-  const form = useForm<signInInput>({
-    resolver: zodResolver(signInSchema),
+  const form = useForm<signUpInput>({
+    resolver: zodResolver(signUpSchema),
     defaultValues: {
       email: '',
       password: '',
+      repeatPassword: '',
     },
   });
 
-  async function onSubmit(values: signInInput) {
+  async function onSubmit(values: signUpInput) {
     setIsLoading(true);
-    console.log(values);
-    const signInResult = await supabase.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    });
-    console.log({ signUpResult: signInResult });
-    if (signInResult.error) {
+    const {success, message} = await signUpAction(values);
+    if (!success) {
       return toast({
         title: 'Error',
-        description: signInResult.error.message,
+        description: message,
         variant: 'destructive',
       });
     }
     setIsLoading(false);
     toast({
       title: 'Success',
-      description: 'Sign in successful',
+      description: 'Sign up successful',
     });
-
-    router.push('/');
   }
 
   return (
@@ -96,12 +96,29 @@ export function SignInForm() {
                 <FormControl>
                   <Input type='password' {...field} />
                 </FormControl>
-
+                <FormDescription>
+                  Please enter your Password, it must be at least 8 characters
+                  long
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
 
+          <FormField
+            control={form.control}
+            name='repeatPassword'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Repeat Password</FormLabel>
+                <FormControl>
+                  <Input type='password' {...field} />
+                </FormControl>
+                <FormDescription>Please re-enter your password</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <Button className='w-full md:mb-2 md:mt-2' type='submit'>
             Submit
           </Button>
